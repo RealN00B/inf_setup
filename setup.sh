@@ -55,54 +55,36 @@ clone_repo() {
   eval "$cmd" & spinner "Cloning $path"
 }
 
+# Remove directory and clone new repository
+replace_repo() {
+  local path="$1"
+  local url="$2"
+  local branch="${3:-}"
+  
+  echo -e "${YELLOW}🗑️ Removing $path...${RESET}"
+  rm -rf "$path" & spinner "Removing $path"
+  
+  clone_repo "$url" "$path" "$branch"
+}
+
 # Main script
 main() {
   # ========== Device Components ==========
-  clone_repo "https://github.com/RealN00B/device_xiaomi_redwood_new.git" "device/xiaomi/redwood" "15-final"
-  clone_repo "https://github.com/RealN00B/vendor_xiaomi_redwood_new.git" "vendor/xiaomi/redwood" "15-final"
+  clone_repo "https://github.com/RealN00B/device_xiaomi_redwood_new.git" "device/xiaomi/redwood" "A16"
+  clone_repo "https://github.com/RealN00B/vendor_xiaomi_redwood_new.git" "vendor/xiaomi/redwood" "A16"
   clone_repo "https://codeberg.org/AnupamADDas/redwood-miuicamera" "vendor/xiaomi/redwood-miuicamera" "" "1"
-  clone_repo "https://github.com/RealN00B/Kernel_KT.git" "kernel/xiaomi/redwood" "V13"
+  clone_repo "https://github.com/RealN00B/Kernel_KT.git" "kernel/xiaomi/redwood" "V19"
   
   # Initialize kernel submodules
   echo -e "${GREEN}⚙️ Initializing kernel submodules...${RESET}"
   (cd kernel/xiaomi/redwood && git submodule init & spinner "Init submodules")
   (cd kernel/xiaomi/redwood && git submodule update & spinner "Update submodules")
 
-  # ========== Vendor Components ==========
-  clone_repo "https://github.com/ProjectInfinity-X/vendor_infinity-priv_keys.git" "vendor/infinity-priv/keys"
-  clone_repo "https://github.com/RealN00B/vendor_infinity.git" "vendor/infinity" "15-QPR2"
-  clone_repo "https://github.com/RealN00B/vendor_extras.git" "vendor/extras" "15"
-
-  # ========== Frameworks ==========
-  clone_repo "https://github.com/RealN00B/framework_b.git" "frameworks/base" "15-Final"
-  clone_repo "https://github.com/RealN00B/frameworks_native.git" "frameworks/native" "15-QPR2" "1"
-  clone_repo "https://github.com/RealN00B/frameworks_av.git" "frameworks/av" "15-QPR2"
-
-  # ========== System Components ==========
-  clone_repo "https://android.googlesource.com/platform/packages/modules/Connectivity" "packages/modules/Connectivity" "android-15.0.0_r36" "1"
-  clone_repo "https://android.googlesource.com/platform/system/netd" "system/netd" "android-15.0.0_r36" "1"
-  clone_repo "https://github.com/RealN00B/art.git" "art" "15-QPR2" "1"
-  clone_repo "https://github.com/RealN00B/bionic.git" "bionic" "15-QPR2" "1"
-  clone_repo "https://github.com/RealN00B/system_core.git" "system/core" "15-QPR2" "1"
-
-  # ========== Apps ==========
-  clone_repo "https://github.com/RealN00B/sett.git" "packages/apps/Settings" "15-QPR2" "1"
-  clone_repo "https://github.com/RealN00B/packages_apps_InfinitySuite.git" "packages/apps/InfinitySuite" "15-Final"
-  clone_repo "https://github.com/RealN00B/launcher.git" "packages/apps/Launcher3" "15-QPR2" "1"
-  clone_repo "https://github.com/RealN00B/android_packages_overlays_Themes.git" "packages/overlays/Themes" "15-QPR2" "1"
-
-  # ========== Build System ==========
-  clone_repo "https://github.com/RealN00B/build.git" "build/make" "15-QPR2"
-  clone_repo "https://github.com/RealN00B/build_soong.git" "build/soong" "15-QPR2"
-
-  # ========== Hardware ==========
-  clone_repo "https://github.com/LineageOS/android_hardware_sony_timekeep.git" "hardware/sony/timekeep"
-  clone_repo "https://github.com/RealN00B/hardware_xiaomi.git" "hardware/xiaomi" "15-QPR2"
-  
-  # ========== External Libraries ==========
-  clone_repo "https://github.com/RealN00B/external_arm-optimized-routines.git" "external/arm-optimized-routines" "15-QPR2"
-  clone_repo "https://github.com/RealN00B/external_jemalloc_new.git" "external/jemalloc_new" "15-QPR2"
-  clone_repo "https://github.com/yaap/external_lz4.git" "external/lz4" "fifteen"
+  # ========== Framework and Apps Replacement ==========
+  replace_repo "frameworks/base" "https://github.com/RealN00B/framework_b.git" "16-QPR0"
+  replace_repo "packages/apps/Settings" "https://github.com/RealN00B/sett.git" "A16"
+  replace_repo "packages/apps/PixelParts" "https://github.com/PixelCore-OS/packages_apps_PixelParts.git" "16-staging"
+  replace_repo "vendor/gms" "https://codeberg.org/AnupamADDas/vendor_google_gms" "" "1"
 
   echo -e "${GREEN}✅ All repositories cloned successfully!${RESET}"
   echo -e "${CYAN}🚀 Starting build process...${RESET}"
